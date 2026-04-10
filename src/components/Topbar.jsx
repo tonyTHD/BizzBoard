@@ -1,12 +1,18 @@
-export default function Topbar() {
+export default function Topbar({ title = 'Dashboard' }) {
   return (
-    <div className="fixed top-0 left-[180px] right-0 h-14 bg-[#1a1d27] border-b border-[#2e3350] flex items-center justify-between px-6 z-50">
-      <span className="font-bold text-lg text-white tracking-tight">BizzBoard</span>
-      <div className="w-9 h-9 rounded-full bg-[#2e3350] flex items-center justify-center cursor-pointer hover:bg-[#5865f2] transition-colors">
-        <svg className="w-5 h-5 fill-[#8b90a7]" viewBox="0 0 24 24">
-          <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
-        </svg>
+    <header className="sticky top-0 z-40 flex h-[88px] items-center justify-between border-b border-[#232838] bg-[#111318]/85 px-8 backdrop-blur-xl">
+      <div>
+        <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-[#6e7690]">
+          Workspace
+        </p>
+        <h2 className="mt-1 text-2xl font-semibold tracking-tight text-white">
+          {title}
+        </h2>
       </div>
-    </div>
+
+      <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#2a3145] bg-[#181d2b] text-sm font-semibold text-white">
+        RH
+      </div>
+    </header>
   )
 }
