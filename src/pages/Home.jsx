@@ -36,6 +36,12 @@ const clients = [
   },
 ]
 
+const employees = [
+  { id: 1, name: 'Employee 1' },
+  { id: 2, name: 'Employee 2' },
+  { id: 3, name: 'Employee 3' },
+]
+
 const pageContent = {
   Dashboard: {
     title: 'Dashboard',
@@ -77,26 +83,31 @@ const pageContent = {
     title: 'Clients',
     subtitle: 'Browse client profiles and review recent transaction activity.',
   },
+  Employees: {
+    title: 'Employees',
+    subtitle: 'Browse employee profiles and preview schedule availability.',
+  },
 }
 
-function ClientCard({ client, isSelected, onSelect }) {
+function PersonCard({ person, isSelected, onSelect, label = 'Client' }) {
   return (
     <button
       type="button"
-      onClick={() => onSelect(client)}
+      onClick={() => onSelect(person)}
       className={`flex h-full w-full flex-col items-center justify-center rounded-[28px] border p-6 text-center transition-all ${
         isSelected
-          ? 'border-[#22a3ff] bg-[#181d2a] shadow-[0_0_0_2px_rgba(34,163,255,0.25)]'
+          ? 'border-[#5865f2] bg-[linear-gradient(180deg,#1b2133_0%,#151a27_100%)] shadow-[0_0_0_2px_rgba(88,101,242,0.22)]'
           : 'border-[#232838] bg-[linear-gradient(180deg,#181d2a_0%,#141925_100%)] hover:border-[#33405e]'
       }`}
     >
-      <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#d8d8d8]">
-        <svg viewBox="0 0 24 24" className="h-9 w-9 fill-[#7e859d]">
+      <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-[#2d3650] bg-[#20283a]">
+        <svg viewBox="0 0 24 24" className="h-9 w-9 fill-[#aeb6cc]">
           <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
         </svg>
       </div>
 
-      <span className="text-2xl font-semibold text-white">{client.name}</span>
+      <span className="text-2xl font-semibold text-white">{person.name}</span>
+      <span className="mt-2 text-sm text-[#7f88a1]">{label}</span>
     </button>
   )
 }
@@ -145,9 +156,59 @@ function TransactionHistoryCard({ selectedClient }) {
   )
 }
 
+function EmployeeCalendarCard({ selectedEmployee }) {
+  const fakeDays = Array.from({ length: 28 }, (_, index) => index + 1)
+
+  return (
+    <div className="h-full overflow-hidden rounded-[28px] border border-[#232838] bg-[linear-gradient(180deg,#181d2a_0%,#141925_100%)] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.25)]">
+      <div className="flex h-full flex-col">
+        <div className="mb-5 text-center">
+          <h3 className="text-2xl font-semibold text-white">
+            Calendar for {selectedEmployee.name}
+          </h3>
+        </div>
+
+        <div className="flex flex-1 items-center justify-center">
+          <div className="w-full max-w-4xl rounded-[24px] border border-[#2b3349] bg-[#121826] p-5">
+            <div className="mb-4 grid grid-cols-7 gap-3 text-center text-xs font-semibold uppercase tracking-[0.16em] text-[#6f7891]">
+              <span>Mon</span>
+              <span>Tue</span>
+              <span>Wed</span>
+              <span>Thu</span>
+              <span>Fri</span>
+              <span>Sat</span>
+              <span>Sun</span>
+            </div>
+
+            <div className="grid grid-cols-7 gap-3">
+              {fakeDays.map((day) => (
+                <div
+                  key={day}
+                  className={`aspect-square rounded-2xl border ${
+                    day === 8 || day === 12 || day === 19
+                      ? 'border-[#5865f2] bg-[#20294a] shadow-[0_0_0_1px_rgba(88,101,242,0.18)]'
+                      : 'border-[#30384f] bg-[#d9d9d9]'
+                  } flex items-center justify-center text-sm font-semibold ${
+                    day === 8 || day === 12 || day === 19
+                      ? 'text-[#cdd4ff]'
+                      : 'text-[#1a1f2d]'
+                  }`}
+                >
+                  {day}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function Home() {
   const [activeNav, setActiveNav] = useState('Dashboard')
   const [selectedClient, setSelectedClient] = useState(clients[0])
+  const [selectedEmployee, setSelectedEmployee] = useState(employees[0])
 
   const currentPage = useMemo(() => {
     return pageContent[activeNav] || pageContent.Dashboard
@@ -179,31 +240,67 @@ export default function Home() {
           {activeNav === 'Clients' ? (
             <section className="grid h-[calc(100vh-220px)] grid-cols-12 grid-rows-[180px_1fr] gap-6">
               <div className="col-span-4 min-h-0">
-                <ClientCard
-                  client={clients[0]}
+                <PersonCard
+                  person={clients[0]}
                   isSelected={selectedClient.id === clients[0].id}
                   onSelect={setSelectedClient}
+                  label="Client"
                 />
               </div>
 
               <div className="col-span-4 min-h-0">
-                <ClientCard
-                  client={clients[1]}
+                <PersonCard
+                  person={clients[1]}
                   isSelected={selectedClient.id === clients[1].id}
                   onSelect={setSelectedClient}
+                  label="Client"
                 />
               </div>
 
               <div className="col-span-4 min-h-0">
-                <ClientCard
-                  client={clients[2]}
+                <PersonCard
+                  person={clients[2]}
                   isSelected={selectedClient.id === clients[2].id}
                   onSelect={setSelectedClient}
+                  label="Client"
                 />
               </div>
 
               <div className="col-span-12 min-h-0">
                 <TransactionHistoryCard selectedClient={selectedClient} />
+              </div>
+            </section>
+          ) : activeNav === 'Employees' ? (
+            <section className="grid h-[calc(100vh-220px)] grid-cols-12 grid-rows-[180px_1fr] gap-6">
+              <div className="col-span-4 min-h-0">
+                <PersonCard
+                  person={employees[0]}
+                  isSelected={selectedEmployee.id === employees[0].id}
+                  onSelect={setSelectedEmployee}
+                  label="Employee"
+                />
+              </div>
+
+              <div className="col-span-4 min-h-0">
+                <PersonCard
+                  person={employees[1]}
+                  isSelected={selectedEmployee.id === employees[1].id}
+                  onSelect={setSelectedEmployee}
+                  label="Employee"
+                />
+              </div>
+
+              <div className="col-span-4 min-h-0">
+                <PersonCard
+                  person={employees[2]}
+                  isSelected={selectedEmployee.id === employees[2].id}
+                  onSelect={setSelectedEmployee}
+                  label="Employee"
+                />
+              </div>
+
+              <div className="col-span-12 min-h-0">
+                <EmployeeCalendarCard selectedEmployee={selectedEmployee} />
               </div>
             </section>
           ) : (
