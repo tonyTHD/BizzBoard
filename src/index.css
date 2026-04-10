@@ -1,1 +1,23 @@
+@import "react-grid-layout/css/styles.css";
+@import "react-resizable/css/styles.css";
 @import "tailwindcss";
+@import "tailwindcss";
+
+.react-grid-layout {
+  position: relative;
+  transition: height 200ms ease;
+}
+
+.react-grid-item {
+  transition: all 200ms ease;
+}
+
+.react-grid-item.react-grid-placeholder {
+  background: rgba(88, 101, 242, 0.2);
+  border: 1px dashed rgba(140, 151, 255, 0.6);
+  border-radius: 24px;
+}
+
+.react-resizable-handle {
+  opacity: 0.9;
+}
