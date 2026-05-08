@@ -13,34 +13,78 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  password  String
-  role      String   @default("user")
-  createdAt DateTime @default(now())
+  id             Int             @id @default(autoincrement())
+  name           String
+  email          String          @unique
+  password       String
+  role           String          @default("user")
+  createdAt      DateTime        @default(now())
+  tasks          Task[]
+  notifications  Notification[]
+  calendarEvents CalendarEvent[]
 }
 
 model Finance {
-  id Int @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
+  title       String
+  amount      Float
+  type        String   // "income" or "expense"
+  category    String   // e.g. "Sales", "Payroll", "Operations"
+  description String?
+  date        DateTime
+  createdAt   DateTime @default(now())
 }
 
 model Client {
-  id Int @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  phone     String?
+  company   String?
+  status    String   @default("active") // "active" or "inactive"
+  createdAt DateTime @default(now())
 }
 
 model Employee {
-  id Int @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
+  name       String
+  email      String   @unique
+  phone      String?
+  position   String
+  department String
+  hireDate   DateTime
+  status     String   @default("active") // "active" or "inactive"
+  createdAt  DateTime @default(now())
 }
 
 model Task {
-  id Int @id @default(autoincrement())
+  id           Int      @id @default(autoincrement())
+  title        String
+  description  String?
+  status       String   @default("todo")   // "todo", "in_progress", "done"
+  priority     String   @default("medium") // "low", "medium", "high"
+  dueDate      DateTime?
+  assignedToId Int?
+  assignedTo   User?    @relation(fields: [assignedToId], references: [id])
+  createdAt    DateTime @default(now())
 }
 
 model Notification {
-  id Int @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
+  message   String
+  read      Boolean  @default(false)
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
 }
 
 model CalendarEvent {
-  id Int @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String?
+  startDate   DateTime
+  endDate     DateTime?
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id])
+  createdAt   DateTime  @default(now())
 }
