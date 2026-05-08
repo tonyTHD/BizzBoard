@@ -12,8 +12,8 @@ const calendarRoutes = require('./src/routes/calendarRoutes')
 const app = express()
 const PORT = process.env.PORT || 5001
 
-app.use(cors())             //this will allow the forontend to talk to the backend
-app.use(express.json())     // this lets the server read JSON from requests
+app.use(cors())             
+app.use(express.json())     
 app.use('/api/users', userRoutes)
 app.use('/api/finances', financeRoutes)
 app.use('/api/clients', clientRoutes)
