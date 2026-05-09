@@ -1,82 +1,25 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import Sidebar from '../components/Sidebar'
 import Topbar from '../components/Topbar'
 import ModuleCard from '../components/ModuleCard'
-
-const clients = [
-  {
-    id: 1,
-    name: 'Client 1',
-    transactions: [
-      { id: 'T-1001', date: '2026-04-01', description: 'Website redesign deposit', amount: '+$2,400' },
-      { id: 'T-1002', date: '2026-04-03', description: 'Brand consultation', amount: '+$850' },
-      { id: 'T-1003', date: '2026-04-08', description: 'Revision credit', amount: '-$150' },
-      { id: 'T-1004', date: '2026-04-12', description: 'Final project payment', amount: '+$3,200' },
-    ],
-  },
-  {
-    id: 2,
-    name: 'Client 2',
-    transactions: [
-      { id: 'T-2001', date: '2026-04-02', description: 'Monthly retainer', amount: '+$1,500' },
-      { id: 'T-2002', date: '2026-04-06', description: 'Ad campaign setup', amount: '+$1,250' },
-      { id: 'T-2003', date: '2026-04-09', description: 'Refund adjustment', amount: '-$200' },
-      { id: 'T-2004', date: '2026-04-14', description: 'Analytics reporting', amount: '+$600' },
-    ],
-  },
-  {
-    id: 3,
-    name: 'Client 3',
-    transactions: [
-      { id: 'T-3001', date: '2026-04-04', description: 'Mobile app prototype', amount: '+$4,100' },
-      { id: 'T-3002', date: '2026-04-07', description: 'UI expansion phase', amount: '+$1,900' },
-      { id: 'T-3003', date: '2026-04-11', description: 'Scope reduction adjustment', amount: '-$300' },
-      { id: 'T-3004', date: '2026-04-15', description: 'Testing and QA invoice', amount: '+$1,150' },
-    ],
-  },
-]
-
-const employees = [
-  { id: 1, name: 'Employee 1' },
-  { id: 2, name: 'Employee 2' },
-  { id: 3, name: 'Employee 3' },
-]
 
 const pageContent = {
   Dashboard: {
     title: 'Dashboard',
     subtitle: 'A modular business management hub with a clean default layout.',
     modules: [
-      {
-        label: 'Revenue Overview',
-        sublabel: 'Monthly performance',
-      },
-      {
-        label: 'Client Activity',
-        sublabel: 'Recent interactions',
-      },
-      {
-        label: 'Team Snapshot',
-        sublabel: 'Attendance, tasks, workload',
-      },
+      { label: 'Revenue Overview', sublabel: 'Monthly performance' },
+      { label: 'Client Activity', sublabel: 'Recent interactions' },
+      { label: 'Team Snapshot', sublabel: 'Attendance, tasks, workload' },
     ],
   },
   Finances: {
     title: 'Finances',
     subtitle: 'Track income, expenses, and profitability from one place.',
     modules: [
-      {
-        label: 'Income',
-        sublabel: 'Revenue streams and incoming payments',
-      },
-      {
-        label: 'Expenses',
-        sublabel: 'Operational costs and outgoing payments',
-      },
-      {
-        label: 'Profit Breakdown',
-        sublabel: 'Net profit, margin trends, and category impact',
-      },
+      { label: 'Income', sublabel: 'Revenue streams and incoming payments' },
+      { label: 'Expenses', sublabel: 'Operational costs and outgoing payments' },
+      { label: 'Profit Breakdown', sublabel: 'Net profit, margin trends, and category impact' },
     ],
   },
   Clients: {
@@ -112,91 +55,181 @@ function PersonCard({ person, isSelected, onSelect, label = 'Client' }) {
   )
 }
 
-function TransactionHistoryCard({ selectedClient }) {
+function TransactionHistoryCard({ selectedClient, onAddTransaction }) {
   return (
     <div className="h-full overflow-hidden rounded-[28px] border border-[#232838] bg-[linear-gradient(180deg,#181d2a_0%,#141925_100%)] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.25)]">
       <div className="flex h-full flex-col">
-        <div className="mb-5 text-center">
+        <div className="mb-5 flex items-center justify-between">
+          <div className="w-11" />
+
           <h3 className="text-2xl font-semibold text-white">
             Transaction History for {selectedClient.name}
           </h3>
+
+          <button
+            type="button"
+            onClick={onAddTransaction}
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-[#5865f2] text-2xl text-white transition hover:bg-[#6b77ff]"
+          >
+            +
+          </button>
         </div>
 
-        <div className="flex min-h-0 flex-1 flex-col gap-4">
-          {selectedClient.transactions.map((transaction) => {
-            const positive = transaction.amount.startsWith('+')
-
-            return (
-              <div
-                key={transaction.id}
-                className="flex items-center justify-between rounded-2xl border border-[#27304a] bg-[#111827] px-5 py-4 transition hover:border-[#3a4a73] hover:bg-[#141c2c]"
-              >
-                <div className="min-w-0">
-                  <p className="text-base font-semibold text-white">
-                    {transaction.description}
-                  </p>
-                  <p className="mt-1 text-sm text-[#7f88a1]">
-                    {transaction.id} • {transaction.date}
-                  </p>
-                </div>
-
-                <span
-                  className={`ml-4 shrink-0 text-base font-bold ${
-                    positive ? 'text-[#6f86ff]' : 'text-[#ff6b6b]'
-                  }`}
-                >
-                  {transaction.amount}
-                </span>
+        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pr-1">
+          {selectedClient.transactions.length === 0 ? (
+            <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-[#33405e] bg-[#111827] text-center">
+              <div>
+                <h4 className="text-xl font-semibold text-white">No transactions yet</h4>
+                <p className="mt-2 text-sm text-[#8f98b0]">
+                  Click the plus button to add this client's first transaction.
+                </p>
               </div>
-            )
-          })}
+            </div>
+          ) : (
+            selectedClient.transactions.map((transaction) => {
+              const positive = transaction.amount.startsWith('+')
+
+              return (
+                <div
+                  key={transaction.id}
+                  className="flex items-center justify-between rounded-2xl border border-[#27304a] bg-[#111827] px-5 py-4 transition hover:border-[#3a4a73] hover:bg-[#141c2c]"
+                >
+                  <div className="min-w-0">
+                    <p className="text-base font-semibold text-white">
+                      {transaction.description}
+                    </p>
+                    <p className="mt-1 text-sm text-[#7f88a1]">
+                      {transaction.id} • {transaction.date}
+                    </p>
+                  </div>
+
+                  <span
+                    className={`ml-4 shrink-0 text-base font-bold ${
+                      positive ? 'text-[#6f86ff]' : 'text-[#ff6b6b]'
+                    }`}
+                  >
+                    {transaction.amount}
+                  </span>
+                </div>
+              )
+            })
+          )}
         </div>
       </div>
     </div>
   )
 }
 
-function EmployeeCalendarCard({ selectedEmployee }) {
-  const fakeDays = Array.from({ length: 28 }, (_, index) => index + 1)
+function EmployeeScheduleCard({ selectedEmployee, onUpdateWorkingDays }) {
+  const [currentDate, setCurrentDate] = useState(new Date())
+
+  const getDaysInMonth = (date) => {
+    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
+  }
+
+  const getFirstDayOfMonth = (date) => {
+    return new Date(date.getFullYear(), date.getMonth(), 1).getDay()
+  }
+
+  const toggleWorkingDay = (day) => {
+    const dateKey = `${currentDate.getFullYear()}-${currentDate.getMonth()}-${day}`
+    const newWorkingDays = { ...selectedEmployee.workingDays }
+
+    if (newWorkingDays[dateKey]) {
+      delete newWorkingDays[dateKey]
+    } else {
+      newWorkingDays[dateKey] = true
+    }
+
+    onUpdateWorkingDays(newWorkingDays)
+  }
+
+  const previousMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))
+  }
+
+  const nextMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))
+  }
+
+  const daysInMonth = getDaysInMonth(currentDate)
+  const firstDay = getFirstDayOfMonth(currentDate)
+  const monthName = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })
+
+  const calendarDays = []
+  for (let i = 0; i < firstDay; i++) {
+    calendarDays.push(null)
+  }
+  for (let day = 1; day <= daysInMonth; day++) {
+    calendarDays.push(day)
+  }
 
   return (
     <div className="h-full overflow-hidden rounded-[28px] border border-[#232838] bg-[linear-gradient(180deg,#181d2a_0%,#141925_100%)] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.25)]">
       <div className="flex h-full flex-col">
-        <div className="mb-5 text-center">
+        <div className="mb-2 text-center">
           <h3 className="text-2xl font-semibold text-white">
-            Calendar for {selectedEmployee.name}
+            Working Days for {selectedEmployee.name}
           </h3>
+          <p className="mt-1 text-xs text-[#7f88a1]">Click days to toggle working schedule</p>
         </div>
 
-        <div className="flex flex-1 items-center justify-center">
-          <div className="w-full max-w-4xl rounded-[24px] border border-[#2b3349] bg-[#121826] p-5">
-            <div className="mb-4 grid grid-cols-7 gap-3 text-center text-xs font-semibold uppercase tracking-[0.16em] text-[#6f7891]">
-              <span>Mon</span>
-              <span>Tue</span>
-              <span>Wed</span>
-              <span>Thu</span>
-              <span>Fri</span>
-              <span>Sat</span>
-              <span>Sun</span>
+        <div className="flex flex-1 items-center justify-center overflow-y-auto">
+          <div className="w-full max-w-sm">
+            {/* Month Navigation */}
+            <div className="mb-3 flex items-center justify-between">
+              <button
+                onClick={previousMonth}
+                type="button"
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#2a3145] bg-[#0f1420] text-sm text-[#8f98b0] hover:border-[#5865f2] hover:text-white"
+              >
+                ←
+              </button>
+
+              <h4 className="text-base font-semibold text-white">{monthName}</h4>
+
+              <button
+                onClick={nextMonth}
+                type="button"
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#2a3145] bg-[#0f1420] text-sm text-[#8f98b0] hover:border-[#5865f2] hover:text-white"
+              >
+                →
+              </button>
             </div>
 
-            <div className="grid grid-cols-7 gap-3">
-              {fakeDays.map((day) => (
-                <div
-                  key={day}
-                  className={`aspect-square rounded-2xl border ${
-                    day === 8 || day === 12 || day === 19
-                      ? 'border-[#5865f2] bg-[#20294a] shadow-[0_0_0_1px_rgba(88,101,242,0.18)]'
-                      : 'border-[#30384f] bg-[#d9d9d9]'
-                  } flex items-center justify-center text-sm font-semibold ${
-                    day === 8 || day === 12 || day === 19
-                      ? 'text-[#cdd4ff]'
-                      : 'text-[#1a1f2d]'
-                  }`}
-                >
+            {/* Day Labels */}
+            <div className="mb-1 grid grid-cols-7 gap-1">
+              {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((day) => (
+                <div key={day} className="flex items-center justify-center text-[10px] font-bold text-[#7f88a1]">
                   {day}
                 </div>
               ))}
+            </div>
+
+            {/* Calendar Grid */}
+            <div className="grid grid-cols-7 gap-1">
+              {calendarDays.map((day, index) => {
+                const dateKey = day ? `${currentDate.getFullYear()}-${currentDate.getMonth()}-${day}` : null
+                const isWorking = day && selectedEmployee.workingDays[dateKey]
+
+                return (
+                  <button
+                    key={index}
+                    onClick={() => day && toggleWorkingDay(day)}
+                    type="button"
+                    disabled={!day}
+                    className={`flex aspect-square items-center justify-center rounded-md border text-[10px] font-semibold transition ${
+                      !day
+                        ? 'bg-transparent'
+                        : isWorking
+                          ? 'border-[#5865f2] bg-[#20294a] text-[#cdd4ff] shadow-[0_0_0_1px_rgba(88,101,242,0.18)] hover:bg-[#2a3356]'
+                          : 'border-[#30384f] bg-[#111827] text-[#8f98b0] hover:border-[#3a4a73] hover:bg-[#1a2335]'
+                    }`}
+                  >
+                    {day}
+                  </button>
+                )
+              })}
             </div>
           </div>
         </div>
@@ -207,8 +240,55 @@ function EmployeeCalendarCard({ selectedEmployee }) {
 
 export default function Home() {
   const [activeNav, setActiveNav] = useState('Dashboard')
-  const [selectedClient, setSelectedClient] = useState(clients[0])
-  const [selectedEmployee, setSelectedEmployee] = useState(employees[0])
+  const [clients, setClients] = useState([])
+  const [employees, setEmployees] = useState([])
+  const [selectedClient, setSelectedClient] = useState(null)
+  const [selectedEmployee, setSelectedEmployee] = useState(null)
+
+  const [showClientModal, setShowClientModal] = useState(false)
+  const [newClientName, setNewClientName] = useState('')
+
+  const [showEmployeeModal, setShowEmployeeModal] = useState(false)
+  const [newEmployeeName, setNewEmployeeName] = useState('')
+
+  const [showTransactionModal, setShowTransactionModal] = useState(false)
+  const [newTransaction, setNewTransaction] = useState({
+    description: '',
+    date: '',
+    amount: '',
+  })
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    const savedClients = localStorage.getItem('bizzboard_clients')
+    const savedEmployees = localStorage.getItem('bizzboard_employees')
+
+    if (savedClients) {
+      const parsed = JSON.parse(savedClients)
+      setClients(parsed)
+      if (parsed.length > 0) {
+        setSelectedClient(parsed[0])
+      }
+    }
+
+    if (savedEmployees) {
+      const parsed = JSON.parse(savedEmployees)
+      setEmployees(parsed)
+      if (parsed.length > 0) {
+        setSelectedEmployee(parsed[0])
+      }
+    }
+  }, [])
+
+  // Save clients to localStorage
+  useEffect(() => {
+    localStorage.setItem('bizzboard_clients', JSON.stringify(clients))
+  }, [clients])
+
+  // Save employees to localStorage
+  useEffect(() => {
+    localStorage.setItem('bizzboard_employees', JSON.stringify(employees))
+  }, [employees])
 
   const currentPage = useMemo(() => {
     return pageContent[activeNav] || pageContent.Dashboard
@@ -216,6 +296,97 @@ export default function Home() {
 
   const modules = currentPage.modules || []
   const [topLeft, topRight, bottom] = modules
+
+  const handleCreateClient = () => {
+    if (!newClientName.trim()) return
+
+    const newClient = {
+      id: Date.now(),
+      name: newClientName.trim(),
+      transactions: [],
+    }
+
+    setClients((prev) => [...prev, newClient])
+    setSelectedClient(newClient)
+    setNewClientName('')
+    setShowClientModal(false)
+  }
+
+  const handleCreateEmployee = () => {
+    if (!newEmployeeName.trim()) return
+
+    const newEmployee = {
+      id: Date.now(),
+      name: newEmployeeName.trim(),
+      workingDays: [true, true, true, true, true, false, false], // Mon-Fri by default
+    }
+
+    setEmployees((prev) => [...prev, newEmployee])
+    setSelectedEmployee(newEmployee)
+    setNewEmployeeName('')
+    setShowEmployeeModal(false)
+  }
+
+  const handleCreateTransaction = () => {
+    if (
+      !selectedClient ||
+      !newTransaction.description.trim() ||
+      !newTransaction.date ||
+      !newTransaction.amount
+    ) {
+      return
+    }
+
+    const amountNumber = Number(newTransaction.amount)
+
+    const formattedAmount =
+      amountNumber >= 0
+        ? `+$${Math.abs(amountNumber).toLocaleString()}`
+        : `-$${Math.abs(amountNumber).toLocaleString()}`
+
+    const transaction = {
+      id: `T-${Date.now().toString().slice(-4)}`,
+      date: newTransaction.date,
+      description: newTransaction.description.trim(),
+      amount: formattedAmount,
+    }
+
+    setClients((prev) =>
+      prev.map((client) =>
+        client.id === selectedClient.id
+          ? { ...client, transactions: [...client.transactions, transaction] }
+          : client
+      )
+    )
+
+    setSelectedClient((prev) => ({
+      ...prev,
+      transactions: [...prev.transactions, transaction],
+    }))
+
+    setNewTransaction({
+      description: '',
+      date: '',
+      amount: '',
+    })
+
+    setShowTransactionModal(false)
+  }
+
+  const handleUpdateWorkingDays = (newWorkingDays) => {
+    const updatedEmployee = {
+      ...selectedEmployee,
+      workingDays: newWorkingDays,
+    }
+
+    setEmployees((prev) =>
+      prev.map((emp) =>
+        emp.id === selectedEmployee.id ? updatedEmployee : emp
+      )
+    )
+
+    setSelectedEmployee(updatedEmployee)
+  }
 
   return (
     <div className="min-h-screen bg-[#0b0e14] text-white">
@@ -238,100 +409,252 @@ export default function Home() {
           </section>
 
           {activeNav === 'Clients' ? (
-            <section className="grid h-[calc(100vh-220px)] grid-cols-12 grid-rows-[180px_1fr] gap-6">
-              <div className="col-span-4 min-h-0">
-                <PersonCard
-                  person={clients[0]}
-                  isSelected={selectedClient.id === clients[0].id}
-                  onSelect={setSelectedClient}
-                  label="Client"
-                />
+            <section className="grid h-[calc(100vh-220px)] grid-rows-[220px_1fr] gap-6">
+              <div className="grid min-h-0 grid-cols-3 gap-6">
+                {clients.map((client) => (
+                  <PersonCard
+                    key={client.id}
+                    person={client}
+                    isSelected={selectedClient?.id === client.id}
+                    onSelect={setSelectedClient}
+                    label="Client"
+                  />
+                ))}
+
+                <button
+                  type="button"
+                  onClick={() => setShowClientModal(true)}
+                  className="flex h-full w-full flex-col items-center justify-center rounded-[28px] border border-dashed border-[#33405e] bg-[#111827] text-[#8f98b0] transition hover:border-[#5865f2] hover:bg-[#151b2a] hover:text-white"
+                >
+                  <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[#5865f2] text-4xl font-light text-white">
+                    +
+                  </span>
+                  <span className="mt-5 text-xl font-semibold">Add Client</span>
+                </button>
               </div>
 
-              <div className="col-span-4 min-h-0">
-                <PersonCard
-                  person={clients[1]}
-                  isSelected={selectedClient.id === clients[1].id}
-                  onSelect={setSelectedClient}
-                  label="Client"
-                />
-              </div>
-
-              <div className="col-span-4 min-h-0">
-                <PersonCard
-                  person={clients[2]}
-                  isSelected={selectedClient.id === clients[2].id}
-                  onSelect={setSelectedClient}
-                  label="Client"
-                />
-              </div>
-
-              <div className="col-span-12 min-h-0">
-                <TransactionHistoryCard selectedClient={selectedClient} />
+              <div className="min-h-0">
+                {selectedClient ? (
+                  <TransactionHistoryCard
+                    selectedClient={selectedClient}
+                    onAddTransaction={() => setShowTransactionModal(true)}
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center rounded-[28px] border border-[#232838] bg-[linear-gradient(180deg,#181d2a_0%,#141925_100%)] p-6 text-center">
+                    <div>
+                      <h3 className="text-2xl font-semibold text-white">
+                        No client selected
+                      </h3>
+                      <p className="mt-3 text-[#8f98b0]">
+                        Add a client to start tracking transaction history.
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             </section>
           ) : activeNav === 'Employees' ? (
             <section className="grid h-[calc(100vh-220px)] grid-cols-12 grid-rows-[180px_1fr] gap-6">
-              <div className="col-span-4 min-h-0">
-                <PersonCard
-                  person={employees[0]}
-                  isSelected={selectedEmployee.id === employees[0].id}
-                  onSelect={setSelectedEmployee}
-                  label="Employee"
-                />
-              </div>
+              {employees.map((employee) => (
+                <div key={employee.id} className="col-span-4 min-h-0">
+                  <PersonCard
+                    person={employee}
+                    isSelected={selectedEmployee?.id === employee.id}
+                    onSelect={setSelectedEmployee}
+                    label="Employee"
+                  />
+                </div>
+              ))}
 
-              <div className="col-span-4 min-h-0">
-                <PersonCard
-                  person={employees[1]}
-                  isSelected={selectedEmployee.id === employees[1].id}
-                  onSelect={setSelectedEmployee}
-                  label="Employee"
-                />
-              </div>
-
-              <div className="col-span-4 min-h-0">
-                <PersonCard
-                  person={employees[2]}
-                  isSelected={selectedEmployee.id === employees[2].id}
-                  onSelect={setSelectedEmployee}
-                  label="Employee"
-                />
-              </div>
+              <button
+                type="button"
+                onClick={() => setShowEmployeeModal(true)}
+                className="col-span-4 flex h-full w-full flex-col items-center justify-center rounded-[28px] border border-dashed border-[#33405e] bg-[#111827] text-[#8f98b0] transition hover:border-[#5865f2] hover:bg-[#151b2a] hover:text-white"
+              >
+                <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[#5865f2] text-4xl font-light text-white">
+                  +
+                </span>
+                <span className="mt-5 text-xl font-semibold">Add Employee</span>
+              </button>
 
               <div className="col-span-12 min-h-0">
-                <EmployeeCalendarCard selectedEmployee={selectedEmployee} />
+                {selectedEmployee ? (
+                  <EmployeeScheduleCard
+                    selectedEmployee={selectedEmployee}
+                    onUpdateWorkingDays={handleUpdateWorkingDays}
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center rounded-[28px] border border-[#232838] bg-[linear-gradient(180deg,#181d2a_0%,#141925_100%)] p-6 text-center">
+                    <div>
+                      <h3 className="text-2xl font-semibold text-white">
+                        No employee selected
+                      </h3>
+                      <p className="mt-3 text-[#8f98b0]">
+                        Add an employee to start managing their schedule.
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             </section>
           ) : (
             <section className="grid h-[calc(100vh-220px)] grid-cols-2 grid-rows-[1fr_1.2fr] gap-6">
               <div className="min-h-0">
-                <ModuleCard
-                  label={topLeft.label}
-                  sublabel={topLeft.sublabel}
-                  compact
-                />
+                <ModuleCard label={topLeft.label} sublabel={topLeft.sublabel} compact />
               </div>
 
               <div className="min-h-0">
-                <ModuleCard
-                  label={topRight.label}
-                  sublabel={topRight.sublabel}
-                  compact
-                />
+                <ModuleCard label={topRight.label} sublabel={topRight.sublabel} compact />
               </div>
 
               <div className="col-span-2 min-h-0">
-                <ModuleCard
-                  label={bottom.label}
-                  sublabel={bottom.sublabel}
-                  compact
-                />
+                <ModuleCard label={bottom.label} sublabel={bottom.sublabel} compact />
               </div>
             </section>
           )}
         </main>
       </div>
+
+      {showClientModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-3xl border border-[#2a3145] bg-[#141925] p-6 shadow-2xl">
+            <h2 className="text-xl font-semibold text-white">Add New Client</h2>
+
+            <input
+              type="text"
+              value={newClientName}
+              onChange={(e) => setNewClientName(e.target.value)}
+              placeholder="Enter client name..."
+              className="mt-4 w-full rounded-xl border border-[#2a3145] bg-[#0f1420] px-4 py-3 text-white outline-none focus:border-[#5865f2]"
+            />
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowClientModal(false)
+                  setNewClientName('')
+                }}
+                className="rounded-xl border border-[#2a3145] px-4 py-2 text-[#8f98b0] hover:text-white"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleCreateClient}
+                className="rounded-xl bg-[#5865f2] px-4 py-2 font-semibold text-white hover:bg-[#6b77ff]"
+              >
+                Add Client
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showEmployeeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-3xl border border-[#2a3145] bg-[#141925] p-6 shadow-2xl">
+            <h2 className="text-xl font-semibold text-white">Add New Employee</h2>
+
+            <input
+              type="text"
+              value={newEmployeeName}
+              onChange={(e) => setNewEmployeeName(e.target.value)}
+              placeholder="Enter employee name..."
+              className="mt-4 w-full rounded-xl border border-[#2a3145] bg-[#0f1420] px-4 py-3 text-white outline-none focus:border-[#5865f2]"
+            />
+
+            <p className="mt-4 text-sm text-[#8f98b0]">Default: Mon-Fri working days. Customize after adding.</p>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowEmployeeModal(false)
+                  setNewEmployeeName('')
+                }}
+                className="rounded-xl border border-[#2a3145] px-4 py-2 text-[#8f98b0] hover:text-white"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleCreateEmployee}
+                className="rounded-xl bg-[#5865f2] px-4 py-2 font-semibold text-white hover:bg-[#6b77ff]"
+              >
+                Add Employee
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showTransactionModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-3xl border border-[#2a3145] bg-[#141925] p-6 shadow-2xl">
+            <h2 className="text-xl font-semibold text-white">Add Transaction</h2>
+
+            <input
+              type="text"
+              value={newTransaction.description}
+              onChange={(e) =>
+                setNewTransaction((prev) => ({
+                  ...prev,
+                  description: e.target.value,
+                }))
+              }
+              placeholder="Transaction name..."
+              className="mt-4 w-full rounded-xl border border-[#2a3145] bg-[#0f1420] px-4 py-3 text-white outline-none focus:border-[#5865f2]"
+            />
+
+            <input
+              type="date"
+              value={newTransaction.date}
+              onChange={(e) =>
+                setNewTransaction((prev) => ({
+                  ...prev,
+                  date: e.target.value,
+                }))
+              }
+              className="mt-4 w-full rounded-xl border border-[#2a3145] bg-[#0f1420] px-4 py-3 text-white outline-none focus:border-[#5865f2]"
+            />
+
+            <input
+              type="number"
+              value={newTransaction.amount}
+              onChange={(e) =>
+                setNewTransaction((prev) => ({
+                  ...prev,
+                  amount: e.target.value,
+                }))
+              }
+              placeholder="Amount, e.g. 2500 or -150"
+              className="mt-4 w-full rounded-xl border border-[#2a3145] bg-[#0f1420] px-4 py-3 text-white outline-none focus:border-[#5865f2]"
+            />
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowTransactionModal(false)
+                  setNewTransaction({
+                    description: '',
+                    date: '',
+                    amount: '',
+                  })
+                }}
+                className="rounded-xl border border-[#2a3145] px-4 py-2 text-[#8f98b0] hover:text-white"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleCreateTransaction}
+                className="rounded-xl bg-[#5865f2] px-4 py-2 font-semibold text-white hover:bg-[#6b77ff]"
+              >
+                Add Transaction
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
